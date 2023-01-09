@@ -39,6 +39,7 @@ def find_episodes_to_process() -> list[Episode]:
                     episode = ep
                 logging.info(f"  [{ep.title}] with ratio [{r}]")
             logging.info(f"    picked [{episode.title}] as match for [{file}]")
+            episode.filename = file
             return episode
         return None
 
