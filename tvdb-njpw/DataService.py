@@ -42,7 +42,7 @@ class SqliteDataService(DataService):
                 """
                 create table if not exists runs(run_time primary key);
                 create table if not exists series(id primary key, name, season_type);
-                create table if not exists episodes(id primary key, series_id, season, episode_number, air_date, title, filename, processed);
+                create table if not exists episodes(id primary key, series_id, season, episode_number, air_date, title, filename, processed_file, processed);
             """
             )
             cursor.close()
@@ -101,8 +101,8 @@ class SqliteDataService(DataService):
         try:
             con = self._get_db()
             con.execute(
-                """insert into episodes (id, series_id, season, episode_number, air_date, title, filename, processed)
-                    values (?, ?, ?, ?, ?, ?, ?, ?)
+                """insert into episodes (id, series_id, season, episode_number, air_date, title, filename, processed_filename, processed)
+                    values (?, ?, ?, ?, ?, ?, ?, ?, ?)
                     on conflict (id) do update set
                         series_id = excluded.series_id,
                         season = excluded.season,
@@ -110,6 +110,7 @@ class SqliteDataService(DataService):
                         air_date = excluded.air_date,
                         title = excluded.title,
                         filename = excluded.filename,
+                        processed_filename = excluded.processed_filename,
                         processed = excluded.processed""",
                 (
                     episode.id,
@@ -119,6 +120,7 @@ class SqliteDataService(DataService):
                     episode.air_date,
                     episode.title,
                     episode.filename,
+                    episode.processed_filename,
                     episode.processed,
                 ),
             )
@@ -133,7 +135,7 @@ class SqliteDataService(DataService):
             con = self._get_db()
             con.row_factory = sqlite3.Row
             cursor = con.execute(
-                """select id, series_id, season, episode_number, air_date, title, filename, processed
+                """select id, series_id, season, episode_number, air_date, title, filename, processed_filename, processed
                     from episodes
                     where air_date = ?""",
                 (air_date,),
@@ -148,6 +150,7 @@ class SqliteDataService(DataService):
                     row["episode_number"],
                     row["title"],
                     row["filename"],
+                    row["processed_filename"],
                     row["processed"],
                 )
                 episodes.append(ep)

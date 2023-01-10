@@ -49,7 +49,7 @@ class FileServiceImpl(FileService):
         processed_file = join(processed_dir, processed_file_name)
         try:
             os.link(src=incoming_file, dst=processed_file)
-            episode.filename = processed_file
+            episode.processed_filename = processed_file
             return True
         except FileExistsError:
             logging.warn(f"file [{processed_file}] already exists; skipping")

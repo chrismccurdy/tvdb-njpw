@@ -18,6 +18,7 @@ class Episode:
         episode: int,
         title: str,
         filename: str = None,
+        processed_filename: str = None,
         processed: bool = False,
     ):
         self.id: int = id
@@ -27,4 +28,5 @@ class Episode:
         self.episode: int = episode
         self.title: str = title
         self.filename: str = filename
+        self.processed_filename: str = processed_filename
         self.processed: bool = processed
