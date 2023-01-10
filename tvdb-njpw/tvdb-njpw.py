@@ -50,7 +50,7 @@ def find_episodes_to_process() -> list[Episode]:
         match = date_re.search(file)
         if match:
             # ugh
-            date_str = match.group(0).replace("June", "Jun")
+            date_str = match.group(0).replace("June", "Jun").replace("July", "Jul")
             air_date = datetime.datetime.strptime(date_str, "%b %d, %Y")
             air_date_str = air_date.strftime("%Y-%m-%d")
             episodes = list(
