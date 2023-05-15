@@ -3,7 +3,8 @@
 {
   "name": "tvdb-njpw",
   "image": "mcr.microsoft.com/devcontainers/python:0-3.11-bullseye",
-  "postCreateCommand": "pip3 install --user -r requirements.txt",
+  "postCreateCommand": "apt install -y crontab",
+  "postStartCommand": "pip3 install --user -r requirements.txt",
   "extensions": [
     "ms-python.vscode-pylance",
     "visualstudioexptteam.vscodeintellicode",

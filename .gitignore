@@ -1,3 +1,4 @@
 __pycache__
-tvdb.db
-credentials.json
+*.db
+*.sqlite3
+*.dump
