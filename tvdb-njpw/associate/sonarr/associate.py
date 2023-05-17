@@ -90,4 +90,4 @@ class Associator:
 
 
 def associate_episodes():
-    Associator.associate()
+    Associator().associate()

@@ -1,4 +1,5 @@
 from django.db import models
+from django_yaml_field import YAMLField
 import os
 import tempfile
 
@@ -102,7 +103,7 @@ class SeriesConfiguration(models.Model):
     tvdb_series = models.ForeignKey(TvdbSeries, on_delete=models.CASCADE)
     cookie = models.ForeignKey(Cookie, on_delete=models.DO_NOTHING, null=True)
     match_expression = models.CharField(max_length=100)
-    settings = models.TextField(blank=True)
+    settings = YAMLField(blank=True)
 
     def __str__(self):
         return self.title
