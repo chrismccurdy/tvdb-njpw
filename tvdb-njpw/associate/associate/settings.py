@@ -23,7 +23,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = "django-insecure-b)z1u%^lni$x&6_4f)wbi$a(47%u4#(uc5y-r(3kui88*j&ebj"
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = []
 
@@ -125,10 +125,10 @@ STATIC_URL = "static/"
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 CRONJOBS = [
-    ("0 5 * * *", "sonarr.cron.update_tvdb"),
-    ("0 9 * * *", "sonarr.cron.scrape_njpw_world"),
-    ("0 10 * * *", "sonarr.cron.associate_episodes"),
-    ("10 * * * *", "sonarr.cron.download_videos"),
+    ("0 0 * * *", "sonarr.cron.update_tvdb"),
+    ("10 * * * *", "sonarr.cron.scrape_njpw_world"),
+    ("15 * * * *", "sonarr.cron.associate_episodes"),
+    ("20 * * * *", "sonarr.cron.download_videos"),
 ]
 
 LOGGING = {
@@ -151,3 +151,5 @@ LOGGING = {
         }
     },
 }
+
+from .settings_local import *
