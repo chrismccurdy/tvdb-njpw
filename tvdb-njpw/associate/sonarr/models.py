@@ -48,6 +48,7 @@ class NjpwWorldEpisode(models.Model):
     title = models.CharField(max_length=200)
     air_date = models.DateField()
     url = models.URLField()
+    downloaded_at = models.DateTimeField(auto_now_add=False, null=True)
 
     class Meta:
         ordering = ["series__id", "air_date"]
@@ -63,6 +64,7 @@ class Association(models.Model):
     njpw_world_episode = models.OneToOneField(
         NjpwWorldEpisode, unique=True, on_delete=models.CASCADE
     )
+    associated_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         ordering = ["tvdb_episode__series__id", "tvdb_episode__air_date"]

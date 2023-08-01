@@ -88,6 +88,29 @@ class Associator:
         (replaced, n) = re.subn("\[.*?\]", "", replaced)
         return replaced
 
+    def get_recent_associations(self, limit: int = 5) -> list[Association]:
+        associations = list(Association.objects.order_by('-associated_at')[:limit])
+        logger.debug(f"recent associations [{associations}]")
+        return associations
+
+    def get_unassociated_njpw_world_episodes(self) -> list[NjpwWorldEpisode]:
+        njpw_world_episodes = Association.objects.all().values_list('njpw_world_episode', flat=True)
+        excluded = list(NjpwWorldEpisode.objects.exclude(id__in=njpw_world_episodes).all())
+        logger.debug(f"njpw world episodes unassociated [{excluded}]")
+        return excluded
+
+    def get_unassociated_tvdb_episodes(self) -> list[TvdbEpisode]:
+        tvdb_episodes = Association.objects.all().values_list('tvdb_episode', flat=True)
+        excluded = list(TvdbEpisode.objects.exclude(id__in=tvdb_episodes).all())
+        logger.debug(f"tvdb episodes unassociated [{excluded}]")
+        return excluded
+
+    def associate_episodes(self, njpw_world_episode: NjpwWorldEpisode, tvdb_episode: TvdbEpisode):
+        assoc = Association()
+        assoc.njpw_world_episode = njpw_world_episode
+        assoc.tvdb_episode = tvdb_episode
+        assoc.save()
+
 
 def associate_episodes():
     Associator().associate()

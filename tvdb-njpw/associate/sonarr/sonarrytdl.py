@@ -1,5 +1,5 @@
 from .logging import logger
-from .models import Association, Configuration, NjpwWorldEpisode, SeriesConfiguration
+from .models import Association, Configuration, NjpwWorldEpisode, SeriesConfiguration, TvdbEpisode
 from datetime import datetime, timedelta
 import os
 import re
@@ -148,7 +148,7 @@ class SonarrClient:
                 .get()
                 .njpw_world_episode
             )
-            return True, episode.url
+            return True, episode
         except:
             return False, None
 
@@ -166,8 +166,9 @@ class SonarrClient:
                         logger.debug(
                             f"searching for episode [{ep['title']}:{ep['tvdbId']}] and series id [{ep['seriesId']}]"
                         )
-                        found, dlurl = self.njpw_search(ser["id"], ep["tvdbId"])
+                        found, njpw_ep = self.njpw_search(ser["id"], ep["tvdbId"])
                         if found:
+                            dlurl = njpw_ep.url
                             outtmpl = "/sonarr_root{0}/Season {1}/{2} - S{1}E{3} - {4} WEBDL.%(ext)s".format(
                                 ser["path"],
                                 ep["seasonNumber"],
@@ -190,11 +191,14 @@ class SonarrClient:
                             )
                             try:
                                 yt_dlp.YoutubeDL(ytdl_format_options).download([dlurl])
-                                cookie.remove_temp_file()
+                                njpw_ep.downloaded_at = datetime.now()
+                                njpw_ep.save()
                                 self.rescanseries(ser["id"])
                                 logger.info(f"      Downloaded - [{ep['title']}]")
                             except Exception as e:
                                 logger.error(f"      Failed - [{ep['title']}] - [{e}]")
+                            finally:
+                                cookie.remove_temp_file()
                         else:
                             logger.info(f"    [{e + 1}]: Missing - [{ep['title']}]:")
         else:
@@ -258,3 +262,12 @@ def download_pending():
     episodes = client.getseriesepisodes(series)
     client.download(series, episodes)
     logger.info("waiting...")
+
+
+def get_recent_downloads(limit: int = 5) -> list[TvdbEpisode]:
+    downloads = NjpwWorldEpisode.objects.order_by('-downloaded_at')[:limit].values_list('id', flat=True)
+    associations = Association.objects.filter(njpw_world_episode__id__in=downloads)
+    episodes = map(lambda a: a.tvdb_episode.id, list(associations))
+    recent_downloads = list(TvdbEpisode.objects.filter(id__in=episodes))
+    logger.debug(f"recent downloads [{recent_downloads}]")
+    return recent_downloads

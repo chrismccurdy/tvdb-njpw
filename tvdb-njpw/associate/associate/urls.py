@@ -16,8 +16,17 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import include, path
+from rest_framework import routers
+from sonarr import views
+
+router = routers.DefaultRouter()
+router.register(r"associations", views.AssociationViewSet)
+router.register(r"njpw_world_episodes", views.NjpwWorldEpisodeViewSet)
+router.register(r"tvdb_episodes", views.TvdbEpisodeViewSet)
 
 urlpatterns = [
+    path("api/", include(router.urls)),
+    path("api/", include("sonarr.urls")),
     path("sonarr/", include("sonarr.urls")),
     path("admin/", admin.site.urls),
 ]
