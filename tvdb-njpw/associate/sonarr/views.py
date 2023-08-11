@@ -23,6 +23,16 @@ class TvdbEpisodeViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.TvdbEpisodeSerializer
 
 
+class TvdbSeriesViewSet(viewsets.ModelViewSet):
+    queryset = models.TvdbSeries.objects.all()
+    serializer_class = serializers.TvdbSeriesSerializer
+
+
+class NjpwWorldSeriesViewSet(viewsets.ModelViewSet):
+    queryset = models.NjpwWorldSeries.objects.all()
+    serializer_class = serializers.NjpwWorldSeriesSerializer
+
+
 def index(request):
     return HttpResponse("whatever")
 

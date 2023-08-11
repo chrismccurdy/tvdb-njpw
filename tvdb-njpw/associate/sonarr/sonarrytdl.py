@@ -1,5 +1,11 @@
 from .logging import logger
-from .models import Association, Configuration, NjpwWorldEpisode, SeriesConfiguration, TvdbEpisode
+from .models import (
+    Association,
+    Configuration,
+    NjpwWorldEpisode,
+    SeriesConfiguration,
+    TvdbEpisode,
+)
 from datetime import datetime, timedelta
 import os
 import re
@@ -120,8 +126,16 @@ class SonarrClient:
                     eps_date = datetime.strptime(eps["airDateUtc"], date_format)
                     if "offset" in ser:
                         eps_date = offsethandler(eps_date, ser["offset"])
-                logger.info(f"checking if [{eps_date}] > [{now}]")
                 if not eps["monitored"] or eps["hasFile"] or eps_date > now:
+                    logger.debug(
+                        "not downloading [{0}]; monitored [{1}]; has file [{2}]; [{3}] > [{4}]".format(
+                            eps["title"],
+                            eps["monitored"],
+                            eps["hasFile"],
+                            eps_date,
+                            now,
+                        )
+                    )
                     episodes.remove(eps)
                 else:
                     if "sonarr_regex_match" in ser:
@@ -156,7 +170,7 @@ class SonarrClient:
         if len(series) != 0:
             logger.info("processing episodes to download")
             for s, ser in enumerate(series):
-                logger.info(f"  [{ser['title']}]")
+                logger.debug(f"  [{ser['title']}]")
                 for e, ep in enumerate(episodes):
                     if ser["id"] == ep["seriesId"]:
                         cookies = None
@@ -176,7 +190,7 @@ class SonarrClient:
                                 ep["episodeNumber"],
                                 ep["title"],
                             )
-                            logger.debug(
+                            logger.info(
                                 f"downloading [{ep['title']}] from [{dlurl}] to [{outtmpl}]"
                             )
                             ytdl_format_options = {
@@ -200,7 +214,7 @@ class SonarrClient:
                             finally:
                                 cookie.remove_temp_file()
                         else:
-                            logger.info(f"    [{e + 1}]: Missing - [{ep['title']}]:")
+                            logger.debug(f"    [{e + 1}]: Missing - [{ep['title']}]:")
         else:
             logger.info("nothing to process")
 
@@ -265,7 +279,9 @@ def download_pending():
 
 
 def get_recent_downloads(limit: int = 5) -> list[TvdbEpisode]:
-    downloads = NjpwWorldEpisode.objects.order_by('-downloaded_at')[:limit].values_list('id', flat=True)
+    downloads = NjpwWorldEpisode.objects.order_by("-downloaded_at")[:limit].values_list(
+        "id", flat=True
+    )
     associations = Association.objects.filter(njpw_world_episode__id__in=downloads)
     episodes = map(lambda a: a.tvdb_episode.id, list(associations))
     recent_downloads = list(TvdbEpisode.objects.filter(id__in=episodes))

@@ -1,21 +1,35 @@
-from .models import Association, NjpwWorldEpisode, TvdbEpisode
+from . import models
 from rest_framework import serializers
+
+
+class NjpwWorldSeriesSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.NjpwWorldSeries
+        fields = "__all__"
 
 
 class NjpwWorldEpisodeSerializer(serializers.ModelSerializer):
     class Meta:
-        model = NjpwWorldEpisode
-        fields = '__all__'
+        model = models.NjpwWorldEpisode
+        fields = "__all__"
+
+
+class TvdbSeriesSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.TvdbSeries
+        fields = "__all__"
+
 
 class TvdbEpisodeSerializer(serializers.ModelSerializer):
     class Meta:
-        model = TvdbEpisode
-        fields = '__all__'
+        model = models.TvdbEpisode
+        fields = "__all__"
+
 
 class AssociationSerializer(serializers.ModelSerializer):
     tvdb_episode = TvdbEpisodeSerializer(read_only=True)
     njpw_world_episode = NjpwWorldEpisodeSerializer(read_only=True)
 
     class Meta:
-        model = Association
-        fields = '__all__'
+        model = models.Association
+        fields = "__all__"

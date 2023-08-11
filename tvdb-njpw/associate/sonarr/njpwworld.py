@@ -2,7 +2,6 @@ from .logging import logger
 from .models import (
     Configuration,
     NjpwWorldEpisode,
-    NjpwWorldSeries,
     SeriesConfiguration,
 )
 from bs4 import BeautifulSoup
@@ -34,7 +33,7 @@ class Scraper:
                 if dt:
                     link = dt.parent.find("a", string=re.compile("(All Match|Episode)"))
                     if link:
-                        logger.debug(f"{link.get('href')} -> {link.contents}")
+                        logger.info(f"{link.get('href')} -> {link.contents}")
                         videos[link.get("href")] = link.contents.pop()
             return videos
 
@@ -42,7 +41,6 @@ class Scraper:
             lambda x, y: x | y,
             map(lambda page: get_links(page), range(offset, offset + pages)),
         )
-        logger.debug(video_link_map)
         return video_link_map
 
     def scrape_episodes(

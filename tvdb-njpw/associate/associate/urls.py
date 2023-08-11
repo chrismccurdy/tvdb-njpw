@@ -21,7 +21,9 @@ from sonarr import views
 
 router = routers.DefaultRouter()
 router.register(r"associations", views.AssociationViewSet)
+router.register(r"njpw_world_series", views.NjpwWorldSeriesViewSet)
 router.register(r"njpw_world_episodes", views.NjpwWorldEpisodeViewSet)
+router.register(r"tvdb_series", views.TvdbSeriesViewSet)
 router.register(r"tvdb_episodes", views.TvdbEpisodeViewSet)
 
 urlpatterns = [
