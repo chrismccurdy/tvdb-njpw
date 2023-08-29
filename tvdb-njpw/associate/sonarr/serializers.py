@@ -9,7 +9,27 @@ class NjpwWorldSeriesSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
+class NjpwWorldSeriesField(serializers.PrimaryKeyRelatedField):
+    def to_representation(self, value):
+        pk = super(NjpwWorldSeriesField, self).to_representation(value)
+        try:
+            item = models.NjpwWorldSeries.objects.get(pk=pk)
+            serializer = NjpwWorldSeriesSerializer(item)
+            return serializer.data
+        except models.NjpwWorldSeries.DoesNotExist:
+            return None
+
+    def get_choices(self, cutoff=None):
+        queryset = self.get_queryset()
+        if queryset is None:
+            return {}
+
+        return OrderedDict([item.id, str(item)] for item in queryset)
+
+
 class NjpwWorldEpisodeSerializer(serializers.ModelSerializer):
+    series = NjpwWorldSeriesField(queryset=models.NjpwWorldSeries.objects.all())
+
     class Meta:
         model = models.NjpwWorldEpisode
         fields = "__all__"
@@ -23,6 +43,24 @@ class NjpwWorldEpisodeField(serializers.PrimaryKeyRelatedField):
             serializer = NjpwWorldEpisodeSerializer(item)
             return serializer.data
         except models.NjpwWorldEpisode.DoesNotExist:
+            return None
+
+    def get_choices(self, cutoff=None):
+        queryset = self.get_queryset()
+        if queryset is None:
+            return {}
+
+        return OrderedDict([item.id, str(item)] for item in queryset)
+
+
+class TvdbSeriesField(serializers.PrimaryKeyRelatedField):
+    def to_representation(self, value):
+        pk = super(TvdbSeriesField, self).to_representation(value)
+        try:
+            item = models.TvdbSeries.objects.get(pk=pk)
+            serializer = TvdbSeriesSerializer(item)
+            return serializer.data
+        except models.TvdbSeries.DoesNotExist:
             return None
 
     def get_choices(self, cutoff=None):
@@ -58,6 +96,8 @@ class TvdbEpisodeField(serializers.PrimaryKeyRelatedField):
 
 
 class TvdbEpisodeSerializer(serializers.ModelSerializer):
+    series = TvdbSeriesField(queryset=models.TvdbSeries.objects.all())
+
     class Meta:
         model = models.TvdbEpisode
         fields = "__all__"

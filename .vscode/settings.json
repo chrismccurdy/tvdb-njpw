@@ -2,6 +2,9 @@
   "[python]": {
     "editor.defaultFormatter": "ms-python.black-formatter"
   },
+  "[vue]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
   "black-formatter.path": ["/home/vscode/.local/bin/black"],
   "pylint.path": ["/home/vscode/.local/bin/black"]
 }
