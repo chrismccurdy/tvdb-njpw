@@ -23,7 +23,7 @@ class SonarrClient:
         self.base_url = config.filter(key="sonarr_base_url").get().value
         self.sonarr_api_version = config.filter(key="sonarr_api_version").get().value
         self.api_key = config.filter(key="sonarr_api_key").get().value
-        self.series = SeriesConfiguration.objects.all().iterator()
+        self.series = list(SeriesConfiguration.objects.all())
         self.debug = bool(config.filter(key="ytdl_debug").get().value)
 
     def request_get(self, url, params=None):
