@@ -50,3 +50,14 @@ export function useAlerts() {
   const error = useErrorAlert()
   return { success, error }
 }
+
+const progressVisible = ref(false)
+const progressToast = {
+  visible: progressVisible,
+  show: () => (progressVisible.value = true),
+  hide: () => (progressVisible.value = false)
+}
+
+export function useProgressToast() {
+  return progressToast
+}

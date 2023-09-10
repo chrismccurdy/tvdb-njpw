@@ -1,10 +1,16 @@
 from . import models, serializers
 from .associate import Associator
-from .sonarrytdl import get_recent_downloads
+from .sonarrytdl import (
+    download,
+    download_pending,
+    get_download_status,
+    get_recent_downloads,
+)
 from django.http import HttpResponse
 from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
+import threading
 
 
 class AssociationViewSet(viewsets.ModelViewSet):
@@ -16,6 +22,36 @@ class AssociationViewSet(viewsets.ModelViewSet):
         recent = Associator().get_recent_associations(int(limit))
         serialized = serializers.AssociationSerializer(recent, many=True).data
         return Response(serialized)
+
+    @action(
+        detail=False, methods=["POST"], url_path=r"download(/?(?P<association_id>\d+))?"
+    )
+    def download(self, request, association_id: int = None):
+        response = {"downloading": True, "message": ""}
+        if association_id is None:
+            self.async_download_pending()
+        else:
+            association = models.Association.objects.filter(id=association_id)
+            if association is not None:
+                self.async_download(association)
+            else:
+                response.downloading = False
+                response.message = "Association not found"
+        return Response(response)
+
+    def async_download(self, association):
+        t = threading.Thread(target=download, args=association)
+        t.setDaemon(True)
+        t.start()
+
+    def async_download_pending(self):
+        t = threading.Thread(target=download_pending)
+        t.setDaemon(True)
+        t.start()
+
+    @action(detail=False, methods=["GET"], url_path=r"download/status")
+    def download_status(self, request):
+        return Response(get_download_status())
 
 
 class NjpwWorldEpisodeViewSet(viewsets.ModelViewSet):

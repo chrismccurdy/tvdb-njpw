@@ -1,5 +1,9 @@
 <script setup>
+import { ref } from 'vue'
 import { RouterLink, RouterView } from 'vue-router'
+import DownloadProgressToast from './components/DownloadProgressToast.vue'
+
+const progress = ref(null)
 </script>
 
 <template>
@@ -9,12 +13,14 @@ import { RouterLink, RouterView } from 'vue-router'
         <RouterLink to="/associations">Associations</RouterLink>
         <RouterLink to="/njpwEpisodes">NJPW World Episodes</RouterLink>
         <RouterLink to="/tvdbEpisodes">TVDB Episodes</RouterLink>
+        <a href="#" @click="progress.toggle()">Downloads</a>
       </nav>
     </div>
   </header>
 
   <main>
     <RouterView />
+    <DownloadProgressToast ref="progress" />
   </main>
 </template>
 

@@ -17,6 +17,18 @@ class AssociationService {
     return http.post('/api/associations/', data)
   }
 
+  getDownloads() {
+    return http.get('/api/associations/download/status/')
+  }
+
+  downloadPending() {
+    return http.post('/api/associations/download/')
+  }
+
+  download(id) {
+    return http.post(`/api/associations/download/${id}/`)
+  }
+
   update(id, data) {
     return http.put(`/api/associations/${id}/`, data)
   }
