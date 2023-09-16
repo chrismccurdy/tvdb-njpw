@@ -1,12 +1,13 @@
 <script setup>
-import { reactive, ref, watch } from 'vue'
+import { ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
 import AlertBox from '../components/AlertBox.vue'
 import EpisodeSelectList from '../components/EpisodeSelectList.vue'
 import EpisodeFilterModalWindow from '../components/EpisodeFilterModalWindow.vue'
+import FilterDisplay from '../components/FilterDisplay.vue'
 
-import { useAlerts } from '../common'
+import { filtered, useAlerts } from '../common'
 import AssociationService from '../services/AssociationService'
 import NjpwWorldEpisodeService from '../services/NjpwWorldEpisodeService'
 import TvdbEpisodeService from '../services/TvdbEpisodeService'
@@ -23,7 +24,7 @@ const { success, error } = useAlerts()
 const successAlert = success.alert
 const errorAlert = error.alert
 const modal = ref(null)
-const filters = reactive({})
+const filters = ref({})
 
 function successCallback() {
   success.show('Association saved', 5)
@@ -81,28 +82,6 @@ async function loadAssociation() {
   }
 }
 
-function updateFilters(f) {
-  filters.series = f.series
-  filters.year = f.year
-  filters.month = f.month
-}
-
-function filtered(episodeList) {
-  let filteredEpisodes = episodeList
-  if (filters.series && filters.series.length > 0) {
-    filteredEpisodes = filteredEpisodes.filter(
-      (ep) => ep.series.title == filters.series || ep.series.name == filters.series
-    )
-  }
-  if (filters.year && filters.year.length > 0) {
-    filteredEpisodes = filteredEpisodes.filter((ep) => ep.air_date.startsWith(filters.year))
-  }
-  if (filters.month && filters.month.length > 0) {
-    filteredEpisodes = filteredEpisodes.filter((ep) => ep.air_date.substring(5, 7) == filters.month)
-  }
-  return filteredEpisodes
-}
-
 loadAssociation()
 
 watch(unassociatedOnly, loadEpisodes)
@@ -122,20 +101,7 @@ watch(unassociatedOnly, loadEpisodes)
         <button @click="modal.showEpisodeFilterModal()" class="btn btn-primary m-1">Filters</button>
       </div>
       <div class="col">
-        <span v-if="filters.series" class="m-2">
-          <span class="label me-1">Series:</span>
-          <span>{{ filters.series }}</span>
-        </span>
-
-        <span v-if="filters.year" class="m-2">
-          <span class="label me-1">Year:</span>
-          <span>{{ filters.year }}</span>
-        </span>
-
-        <span v-if="filters.month" class="m-2">
-          <span class="label me-1">Month:</span>
-          <span>{{ filters.month }}</span>
-        </span>
+        <FilterDisplay :filters="filters" />
       </div>
     </div>
 
@@ -155,14 +121,17 @@ watch(unassociatedOnly, loadEpisodes)
     <div class="row my-1">
       <div class="label col-sm-2 my-2"><label for="tvdb-episode">TVDB Episode</label></div>
       <div class="input col-lg-8">
-        <EpisodeSelectList v-model="tvdbEpisode" :episodes="filtered(tvdbEpisodes)" />
+        <EpisodeSelectList v-model="tvdbEpisode" :episodes="filtered(filters, tvdbEpisodes)" />
       </div>
     </div>
 
     <div class="row my-1">
       <div class="label col-sm-2 my-2"><label for="njpw-episode">NJPW World Episode</label></div>
       <div class="input col-lg-8">
-        <EpisodeSelectList v-model="njpwWorldEpisode" :episodes="filtered(njpwWorldEpisodes)" />
+        <EpisodeSelectList
+          v-model="njpwWorldEpisode"
+          :episodes="filtered(filters, njpwWorldEpisodes)"
+        />
       </div>
     </div>
 
@@ -175,5 +144,5 @@ watch(unassociatedOnly, loadEpisodes)
     </div>
   </div>
 
-  <EpisodeFilterModalWindow ref="modal" @filters-updated="(filters) => updateFilters(filters)" />
+  <EpisodeFilterModalWindow ref="modal" @filters-updated="(f) => (filters = f)" />
 </template>

@@ -6,10 +6,6 @@ import AssociationService from '../services/AssociationService'
 const downloads = ref([])
 const task = ref(null)
 const progressToast = useProgressToast()
-console.log(progressToast)
-console.log(progressToast.visible)
-console.log(progressToast.show)
-console.log(progressToast.hide)
 const visible = progressToast.visible
 
 function show() {

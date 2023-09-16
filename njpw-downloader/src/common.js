@@ -12,7 +12,9 @@ export function hideError(errorAlert) {
 export function showMessage(alertBox, message, timeoutSeconds) {
   alertBox.value.setMessage(message)
   setTimeout(() => {
-    alertBox.value.hideMessage()
+    if (alertBox.value) {
+      alertBox.value.hideMessage()
+    }
   }, timeoutSeconds * 1000)
 }
 
@@ -23,7 +25,9 @@ export function useSuccessAlert() {
     show: (msg, timeoutSeconds) => {
       successRef.value.setMessage(msg)
       setTimeout(() => {
-        successRef.value.hideMessage()
+        if (successRef.value) {
+          successRef.value.hideMessage()
+        }
       }, timeoutSeconds * 1000)
     }
   }
@@ -60,4 +64,27 @@ const progressToast = {
 
 export function useProgressToast() {
   return progressToast
+}
+
+export function filtered(filters, episodeList) {
+  let filteredEpisodes = episodeList
+  if (filters.series && filters.series.length > 0) {
+    filteredEpisodes = filteredEpisodes.filter(
+      (ep) => ep.series && (ep.series.title == filters.series || ep.series.name == filters.series)
+    )
+  }
+  if (filters.year && filters.year.length > 0) {
+    filteredEpisodes = filteredEpisodes.filter(
+      (ep) => ep.air_date != null && ep.air_date.startsWith(filters.year)
+    )
+  }
+  if (filters.month && filters.month.length > 0) {
+    filteredEpisodes = filteredEpisodes.filter(
+      (ep) => ep.air_date != null && ep.air_date.substring(5, 7) == filters.month
+    )
+  }
+  if (!filters.hidden) {
+    filteredEpisodes = filteredEpisodes.filter((ep) => !ep.hidden)
+  }
+  return filteredEpisodes
 }

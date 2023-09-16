@@ -1,12 +1,18 @@
 <script setup>
 import { ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { errorCallback } from '../common'
+
+import EpisodeFilterModalWindow from '../components/EpisodeFilterModalWindow.vue'
+import FilterDisplay from '../components/FilterDisplay.vue'
+
+import { errorCallback, filtered } from '../common'
 import NjpwWorldEpisodeService from '../services/NjpwWorldEpisodeService'
 
 const route = useRoute()
 const router = useRouter()
 const episodes = ref([])
+const modal = ref(null)
+const filters = ref({})
 
 const fetchEpisodes = (serviceMethod, routeName) =>
   serviceMethod()
@@ -52,6 +58,7 @@ if (route.name == 'viewNjpwEpisodes') {
 } else if (route.name == 'viewNjpwEpisodesRecent') {
   method = NjpwWorldEpisodeService.getRecent
 }
+
 fetchEpisodes(method, route.name)
 </script>
 
@@ -65,6 +72,15 @@ fetchEpisodes(method, route.name)
     </div>
   </div>
   <div class="container m-2">
+    <div class="row align-items-center my-1">
+      <div class="col-sm-1">
+        <button @click="modal.showEpisodeFilterModal()" class="btn btn-primary m-1">Filters</button>
+      </div>
+      <div class="col">
+        <FilterDisplay :filters="filters" />
+      </div>
+    </div>
+
     <div class="header row">
       <div class="col-sm-4">Title</div>
       <div class="col-sm-1">Air Date</div>
@@ -72,7 +88,12 @@ fetchEpisodes(method, route.name)
       <div class="col-sm-auto">Downloaded At</div>
       <div class="col-sm-1"></div>
     </div>
-    <div class="njpw-episode row" v-for="ep in episodes" :key="ep.id" :id="`njpw-${ep.id}`">
+    <div
+      class="njpw-episode row"
+      v-for="ep in filtered(filters, episodes)"
+      :key="ep.id"
+      :id="`njpw-${ep.id}`"
+    >
       <span class="col-sm-4">{{ ep.title }}</span>
       <span class="col-sm-1">{{ ep.air_date }}</span>
       <span class="col-sm">
@@ -85,4 +106,6 @@ fetchEpisodes(method, route.name)
       </div>
     </div>
   </div>
+
+  <EpisodeFilterModalWindow ref="modal" @filters-updated="(f) => (filters = f)" />
 </template>

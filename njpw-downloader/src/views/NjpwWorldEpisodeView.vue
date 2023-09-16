@@ -28,7 +28,9 @@ function cancel() {
 function save() {
   error.hide()
   let ep = JSON.parse(JSON.stringify(episode.value))
-  ep.series = episode.value.series.id
+  if (episode.value.series) {
+    ep.series = episode.value.series.id
+  }
   if (ep.downloaded_at == '') {
     ep.downloaded_at = null
   }
@@ -112,6 +114,14 @@ NjpwWorldEpisodeService.get(route.params.id)
           v-model="episode.downloaded_at"
           placeholder="Downloaded At"
         />
+      </div>
+    </div>
+
+    <div class="row my-1">
+      <div class="col-sm-2"></div>
+      <div class="col-lg-8 form-check mx-3">
+        <input class="form-check-input" id="hidden" type="checkbox" v-model="episode.hidden" />
+        <label class="form-check-label" for="hidden">Hidden</label>
       </div>
     </div>
 

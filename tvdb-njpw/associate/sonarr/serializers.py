@@ -28,7 +28,9 @@ class NjpwWorldSeriesField(serializers.PrimaryKeyRelatedField):
 
 
 class NjpwWorldEpisodeSerializer(serializers.ModelSerializer):
-    series = NjpwWorldSeriesField(queryset=models.NjpwWorldSeries.objects.all())
+    series = NjpwWorldSeriesField(
+        allow_null=True, queryset=models.NjpwWorldSeries.objects.all()
+    )
 
     class Meta:
         model = models.NjpwWorldEpisode

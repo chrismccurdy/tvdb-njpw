@@ -44,17 +44,18 @@ class NjpwWorldSeries(models.Model):
 
 
 class NjpwWorldEpisode(models.Model):
-    series = models.ForeignKey(NjpwWorldSeries, on_delete=models.CASCADE)
+    series = models.ForeignKey(NjpwWorldSeries, on_delete=models.CASCADE, null=True)
     title = models.CharField(max_length=200)
-    air_date = models.DateField()
+    air_date = models.DateField(null=True)
     url = models.URLField()
     downloaded_at = models.DateTimeField(auto_now_add=False, null=True)
+    hidden = models.BooleanField(default=False)
 
     class Meta:
         ordering = ["series__id", "air_date"]
 
     def __str__(self):
-        return f"{self.series.title} {self.title} - {self.air_date}"
+        return f"{self.series.title if self.series is not None else 'Unknown Series'} {self.title} - {self.air_date}"
 
 
 class Association(models.Model):
