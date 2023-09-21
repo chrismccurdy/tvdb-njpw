@@ -43,6 +43,7 @@ class Scraper:
             lambda x, y: x | y,
             map(lambda page: get_links(page), range(offset, offset + pages)),
         )
+        logger.info(f"returning {len(video_link_map)} total videos")
         return video_link_map
 
     def scrape_episodes(
@@ -64,7 +65,12 @@ class Scraper:
         air_date_str = None
         if match:
             # ugh
-            date_str = match.group(0).replace("June", "Jun").replace("July", "Jul")
+            date_str = (
+                match.group(0)
+                .replace("June", "Jun")
+                .replace("July", "Jul")
+                .replace("Apl", "Apr")
+            )
             air_date = datetime.datetime.strptime(date_str, "%b %d, %Y")
             air_date_str = air_date.strftime("%Y-%m-%d")
 

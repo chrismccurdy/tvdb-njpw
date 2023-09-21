@@ -11,7 +11,10 @@ class Associator:
 
     def associate(self):
         associations = Association.objects.all()
-        njpw_world_episodes = list(NjpwWorldEpisode.objects.all())
+        njpw_world_episodes = filter(
+            lambda ep: ep.series is not None,
+            self.get_unassociated_njpw_world_episodes(),
+        )
         date_re = re.compile("[A-Z][a-z]{2,3} \d{1,2}, \d{4}")
         for njpw_ep in njpw_world_episodes:
             if associations.filter(njpw_world_episode__id=njpw_ep.id).exists():
@@ -20,8 +23,10 @@ class Associator:
             match = date_re.search(njpw_ep.title)
             if match:
                 tvdb_eps = list(
-                    TvdbEpisode.objects.filter(
-                        air_date=njpw_ep.air_date, series__name=njpw_ep.series.title
+                    filter(
+                        lambda ep: ep.air_date == njpw_ep.air_date
+                        and ep.series.name == njpw_ep.series.title,
+                        self.get_unassociated_tvdb_episodes(),
                     )
                 )
 
@@ -89,23 +94,27 @@ class Associator:
         return replaced
 
     def get_recent_associations(self, limit: int = 5) -> list[Association]:
-        associations = list(Association.objects.order_by('-associated_at')[:limit])
+        associations = list(Association.objects.order_by("-associated_at")[:limit])
         logger.debug(f"recent associations [{associations}]")
         return associations
 
     def get_unassociated_njpw_world_episodes(self) -> list[NjpwWorldEpisode]:
-        njpw_world_episodes = Association.objects.all().values_list('njpw_world_episode', flat=True)
-        excluded = list(NjpwWorldEpisode.objects.exclude(id__in=njpw_world_episodes).all())
-        logger.debug(f"njpw world episodes unassociated [{excluded}]")
+        njpw_world_episodes = Association.objects.all().values_list(
+            "njpw_world_episode", flat=True
+        )
+        excluded = list(
+            NjpwWorldEpisode.objects.exclude(id__in=njpw_world_episodes).all()
+        )
         return excluded
 
     def get_unassociated_tvdb_episodes(self) -> list[TvdbEpisode]:
-        tvdb_episodes = Association.objects.all().values_list('tvdb_episode', flat=True)
+        tvdb_episodes = Association.objects.all().values_list("tvdb_episode", flat=True)
         excluded = list(TvdbEpisode.objects.exclude(id__in=tvdb_episodes).all())
-        logger.debug(f"tvdb episodes unassociated [{excluded}]")
         return excluded
 
-    def associate_episodes(self, njpw_world_episode: NjpwWorldEpisode, tvdb_episode: TvdbEpisode):
+    def associate_episodes(
+        self, njpw_world_episode: NjpwWorldEpisode, tvdb_episode: TvdbEpisode
+    ):
         assoc = Association()
         assoc.njpw_world_episode = njpw_world_episode
         assoc.tvdb_episode = tvdb_episode
